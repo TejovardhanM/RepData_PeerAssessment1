@@ -10,6 +10,7 @@ setwd("C:\\Tejo\\Datascience\\ReproducibleResearch\\Week2\\Assignment\\Assignmen
 dir()  ## list the files under the current working directory.
 library(plyr)
 library(lattice)
+library(ggplot2)
 zipfilename<-"activity.zip"
 unzip(zipfilename)  ## unzip the file.
 activity<-read.csv(file="activity.csv", header = TRUE, sep = ",")
@@ -34,7 +35,7 @@ activity$interval<-format(strptime(sprintf("%04d", activity$interval), format="%
 ```{r echo=TRUE}
 
 actsteps<-ddply(activity, .(date), summarise, stepsperday= sum(steps, na.rm = TRUE))
-hist(actsteps$stepsperday, xlab="No of steps", ylab= "interval", main= "Mean total number of steps taken per day"
+hist(actsteps$stepsperday, xlab="No of steps", ylab= "interval", main= "total number of steps taken per day"
      , col = "lightblue", labels=TRUE)
 
 ```
@@ -53,7 +54,8 @@ print (paste("Median:", totalMedianStepsperday))
 ```{r echo=TRUE}
 
 avgactivity<-ddply(activity,.(interval) ,summarise,AvgSteps = mean(steps, na.rm = TRUE))
-plot(avgactivity$AvgSteps, type="l", main = "Average daily activity pattern", xlab = "Interval", ylab = "Average steps", col="orangered")
+
+plot(avgactivity$AvgSteps, type="l", main = "Average Number of Steps/Interval Over All Days", xlab = "Interval", ylab = "Average steps", col="orangered")
 MaxAvg<-avgactivity[which.max(avgactivity$AvgSteps),]$AvgSteps
 legend("topright", paste("MaxAvgSteps: ", MaxAvg))
 
@@ -80,9 +82,11 @@ mergedactivity$steps[index]<- mergedactivity$AvgSteps[index]
 b.Make a histogram of the total number of steps taken each day. 
 
 ```{r echo=TRUE}
+
 actsteps<-ddply(mergedactivity, .(date), summarise, stepsperday= sum(steps))
-hist(actsteps$stepsperday, xlab="No of steps", ylab= "interval", main= "Mean total number of steps taken per day"
+hist(actsteps$stepsperday, xlab="No of steps", ylab= "interval", main= "Histogram of Total Number of Steps/Day (Imputed)"
      , col = "lightblue", labels=TRUE)
+
 ```
 
 c. and Calculate and report the mean and median total number of steps taken per day.
@@ -112,14 +116,17 @@ Make a panel plot containing a time series plot (i.e. type = "l") of the 5-minut
 
 weekdayactivity<-ddply(mergedactivity, .(date,Weekday), summarise, AvgSteps= mean(steps))
 
-xyplot(AvgSteps~date|Weekday, data = weekdayactivity, 
-               ylab="Average Steps", 
-               type = "l",
-               main="Comparison of average steps between weekday and weekend")
+##xyplot(AvgSteps~date|Weekday, data = weekdayactivity, 
+##               ylab="Average Steps", 
+##               type = "l",
+##               main=" ")
 
-dev.copy(png, 'activity.png')
+qplot(date, AvgSteps, data=weekdayactivity, geom=c("line"),
+    xlab="Interval", ylab="Number of steps", main="") +
+    facet_wrap(~ Weekday, ncol=1)
 
-dev.off()
+##dev.copy(png, 'HistTotalStepsimputed.png')
+##dev.off()
 ```
 
  
